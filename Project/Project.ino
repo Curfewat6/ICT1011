@@ -9,10 +9,12 @@
 #include <TinyScreen.h>
 #include <GraphicsBuffer.h>
 #include <TimeLib.h>
+#include <SPI.h>
 #include "BMA250.h"
 
 BMA250 accel_sensor;
 int x, y, z;
+double temp;
 
 GraphicsBuffer displayBuffer = GraphicsBuffer(96, 64, colorDepth16BPP);
 
@@ -103,6 +105,7 @@ void loop() {
   x= accel_sensor.X;
   y = accel_sensor.Y;
   z = accel_sensor.Z;
+  temp = ((accel_sensor.rawTemp * 0.5) + 24.0);
   SerialMonitorInterface.print("  Y = ");
   SerialMonitorInterface.print(y);
   // if (y > 30){
@@ -132,7 +135,6 @@ void loop() {
 
   checkButtons();
   updateMainDisplay();
-
 
 }
 
@@ -186,8 +188,8 @@ void updateMainDisplay() {
     //if (rewriteMenu /*|| lastAmtNotificationsShown != amtNotifications*/) {
     displayBuffer.setCursor(9, menuTextY[6]);
     displayBuffer.print("Menu");
-    displayBuffer.setCursor(70, menuTextY[6]);
-    displayBuffer.print("Log");
+    displayBuffer.setCursor(60, menuTextY[6]);
+    displayBuffer.print("Study");
     
     leftArrow(0, 57);
     rightArrow(90, 57);
@@ -263,6 +265,6 @@ void liveDisplay(int movement) {
   
   //displayBuffer.setCursor(0, menuTextY[4]);
   //displayBuffer.print("Log: Off");
-
-
 }
+
+  

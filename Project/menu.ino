@@ -104,11 +104,27 @@ const menu_info secondExampleMenuInfo =
   secondExampleMenu,//loggingMenu
 };
 
+static const char PROGMEM studyMenuStrings0[] = "Timer";
+static const char PROGMEM studyMenuStrings1[] = "Pet";
 
-const menu_info menuList[] = {exampleMenuInfo, dateTimeMenuInfo, secondExampleMenuInfo};
+static const char* const PROGMEM studyMenuStrings[] =
+{
+  studyMenuStrings0,
+  studyMenuStrings1,
+};
+
+const menu_info studyMenuInfo =
+{
+  2,
+  studyMenuStrings,//loggingMenuStrings
+  studyMenu,//loggingMenu
+};
+
+const menu_info menuList[] = {exampleMenuInfo, dateTimeMenuInfo, secondExampleMenuInfo, studyMenuInfo};
 #define exampleMenuIndex 0
 #define dateTimeMenuIndex 1
 #define secondExampleMenuIndex 2
+#define studyMenuIndex 3
 
 
 bool needMenuDraw = true;
@@ -117,8 +133,8 @@ void buttonPress(uint8_t buttons) {
   if (currentDisplayState == displayStateHome) {
     if (buttons == viewButton) {
       menuHandler = viewMenu;
-      newMenu(exampleMenuIndex);    
-      menuHandler(0);
+      newMenu(studyMenuIndex);    
+      menuHandler(3);
       
     } else if (buttons == menuButton) {
       menuHandler = viewMenu;
@@ -279,7 +295,7 @@ void exampleMenu(uint8_t selection) {
       newMenu(secondExampleMenuIndex);
   }
   if (selection == 3) {
-      // do something
+      nameTag();
   }
   if (selection == 4) {
       // do something
@@ -301,7 +317,16 @@ void secondExampleMenu(uint8_t selection) {
     // Refers to the menu option "Submenu 3"
   }
 }
+void studyMenu(uint8_t selection) {
+  if (menu_debug_print)SerialMonitorInterface.println("studyMenuHandler");
+  if (selection == 0) {
+    // Refers to the menu option "Submenu 1" -> program logic here for that menu selection
+  }
+  if (selection == 1) {
+    // Refers to the menu option "Submenu 2"
+  }
 
+}
 
 uint8_t dateTimeSelection = 0;
 int dateTimeVariable = 0;
