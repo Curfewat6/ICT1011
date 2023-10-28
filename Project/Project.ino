@@ -63,6 +63,7 @@ const uint8_t displayStateHome = 0x01;
 const uint8_t displayStateMenu = 0x02;
 const uint8_t displayStateEditor = 0x03;
 const uint8_t displayStateCalibration = 0x04;
+const uint8_t displayTimer = 0x05;
 
 uint8_t currentDisplayState = displayStateHome;
 
@@ -106,8 +107,8 @@ void loop() {
   y = accel_sensor.Y;
   z = accel_sensor.Z;
   temp = ((accel_sensor.rawTemp * 0.5) + 24.0);
-  SerialMonitorInterface.print("  Y = ");
-  SerialMonitorInterface.print(y);
+  //SerialMonitorInterface.print("  Y = ");
+  //SerialMonitorInterface.print(y);
   // if (y > 30){
   //   displayBuffer.setCursor(0, menuTextY[4]);
   //   displayBuffer.print("Why r u running");
@@ -132,7 +133,11 @@ void loop() {
   } else {
     drawMenu();
   }
-
+  if (currentDisplayState == displayTimer){
+    if ( display.getButtons(TSButtonUpperLeft)){
+      newMenu(3);
+    }
+  }
   checkButtons();
   updateMainDisplay();
 

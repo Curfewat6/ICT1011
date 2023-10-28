@@ -1,10 +1,3 @@
-/*  This file holds most of the code needed to create the menu functionality 
- *  and graphics
- *  
- *  Written by: Ben Rose and Laveréna Wienclaw
- *  Last update: May 2021
- */
-
 #define menu_debug_print true // Debug messages will print to the Serial Monitor when this is 'true'
 
 // Change the menu font colors for fun! Pre-set color options are TS_16b_:
@@ -25,6 +18,7 @@ int currentSelectionLine = 0;
 int lastSelectionLine = -1;
 
 void (*menuHandler)(uint8_t) = NULL;
+uint8_t (*buttonHandler)(uint8_t) = NULL;
 uint8_t (*editorHandler)(uint8_t, int*, char*, void (*)()) = NULL;
 
 // Use this struct outline to create menus
@@ -86,22 +80,22 @@ const menu_info dateTimeMenuInfo =
 
 // Second example sub-menu variables for 3 options
 // Use Ctrl + f on these menu options to see where to program the logic for these menu titles, noted in comments
-static const char PROGMEM secondExampleMenuStrings0[] = "Submenu 1";
-static const char PROGMEM secondExampleMenuStrings1[] = "Submenu 2";
-static const char PROGMEM secondExampleMenuStrings2[] = "Submenu 3";
+static const char PROGMEM petMenuStrings0[] = "Eat";
+static const char PROGMEM petMenuStrings1[] = "Play";
+static const char PROGMEM petMenuStrings2[] = "Shit";
 
-static const char* const PROGMEM secondExampleMenuStrings[] =
+static const char* const PROGMEM petMenuStrings[] =
 {
-  secondExampleMenuStrings0,
-  secondExampleMenuStrings1,
-  secondExampleMenuStrings2,
+  petMenuStrings0,
+  petMenuStrings1,
+  petMenuStrings2,
 };
 
-const menu_info secondExampleMenuInfo =
+const menu_info petMenuInfo =
 {
   3,
-  secondExampleMenuStrings,//loggingMenuStrings
-  secondExampleMenu,//loggingMenu
+  petMenuStrings,//loggingMenuStrings
+  petMenu,//loggingMenu
 };
 
 static const char PROGMEM studyMenuStrings0[] = "Timer";
@@ -120,10 +114,10 @@ const menu_info studyMenuInfo =
   studyMenu,//loggingMenu
 };
 
-const menu_info menuList[] = {exampleMenuInfo, dateTimeMenuInfo, secondExampleMenuInfo, studyMenuInfo};
+const menu_info menuList[] = {exampleMenuInfo, dateTimeMenuInfo, petMenuInfo, studyMenuInfo};
 #define exampleMenuIndex 0
 #define dateTimeMenuIndex 1
-#define secondExampleMenuIndex 2
+#define petMenuIndex 2
 #define studyMenuIndex 3
 
 
@@ -149,7 +143,8 @@ void buttonPress(uint8_t buttons) {
     if (editorHandler) {
       editorHandler(buttons, 0, 0, NULL);
     }
-  }
+  } 
+
 }
 
 void newMenu(int8_t newIndex) {
@@ -168,8 +163,8 @@ void newMenu(int8_t newIndex) {
   }
   if (menuHistoryIndex) {
     currentDisplayState = displayStateMenu;
-    if (menu_debug_print)SerialMonitorInterface.print("New menu index ");
-    if (menu_debug_print)SerialMonitorInterface.println(currentMenu);
+    //if (menu_debug_print)SerialMonitorInterface.print("New menu index ");
+    //if (menu_debug_print)SerialMonitorInterface.println(currentMenu);
     currentSelectionLine = menuSelectionLineHistory[menuHistoryIndex];
   } else {
     if (menu_debug_print)SerialMonitorInterface.print("New menu index ");
@@ -188,11 +183,16 @@ int maxDigit = 4;
 int *originalVal;
 void (*editIntCallBack)() = NULL;
 
-
+uint8_t buttonStuff(uint8_t button){
+  buttonHandler = buttonStuff;
+  if (button == backButton){
+    viewMenu(backButton);
+  }
+}
 uint8_t editInt(uint8_t button, int *inVal, char *intName, void (*cb)()) {
-  if (menu_debug_print)SerialMonitorInterface.println("editInt");
+  //if (menu_debug_print)SerialMonitorInterface.println("editInt");
   if (!button) {
-    if (menu_debug_print)SerialMonitorInterface.println("editIntInit");
+    //if (menu_debug_print)SerialMonitorInterface.println("editIntInit");
     editIntCallBack = cb;
     currentDisplayState = displayStateEditor;
     editorHandler = editInt;
@@ -292,10 +292,9 @@ void exampleMenu(uint8_t selection) {
     editInt(0, &brightness, buffer, setBrightnessCB);
   }
   if (selection == 2) {
-      newMenu(secondExampleMenuIndex);
+    // other stuff
   }
   if (selection == 3) {
-      nameTag();
   }
   if (selection == 4) {
       // do something
@@ -305,8 +304,8 @@ void setBrightnessCB(){
   brightness = constrain(brightness, 0, 15);
 }
 
-void secondExampleMenu(uint8_t selection) {
-  if (menu_debug_print)SerialMonitorInterface.println("secondExampleMenuHandler");
+void petMenu(uint8_t selection) {
+  if (menu_debug_print)SerialMonitorInterface.println("petHandler");
   if (selection == 0) {
     // Refers to the menu option "Submenu 1" -> program logic here for that menu selection
   }
@@ -318,12 +317,12 @@ void secondExampleMenu(uint8_t selection) {
   }
 }
 void studyMenu(uint8_t selection) {
-  if (menu_debug_print)SerialMonitorInterface.println("studyMenuHandler");
+  //if (menu_debug_print)SerialMonitorInterface.println("studyMenuHandler");
   if (selection == 0) {
-    // Refers to the menu option "Submenu 1" -> program logic here for that menu selection
+    nameTag(0);
   }
   if (selection == 1) {
-    // Refers to the menu option "Submenu 2"
+    newMenu(petMenuIndex);
   }
 
 }
@@ -399,8 +398,8 @@ void drawMenu() {
 
 
 void viewMenu(uint8_t button) {
-  if (menu_debug_print)SerialMonitorInterface.print("viewMenu ");
-  if (menu_debug_print)SerialMonitorInterface.println(button);
+  //if (menu_debug_print)SerialMonitorInterface.print("viewMenu ");
+  //if (menu_debug_print)SerialMonitorInterface.println(button);
   if (!button) {
 
   } else {
@@ -414,8 +413,8 @@ void viewMenu(uint8_t button) {
         currentSelectionLine++;
       }
     } else if (button == selectButton) {
-      if (menu_debug_print)SerialMonitorInterface.print("select ");
-      if (menu_debug_print)SerialMonitorInterface.println(currentMenuLine + currentSelectionLine);
+      //if (menu_debug_print)SerialMonitorInterface.print("select ");
+      //if (menu_debug_print)SerialMonitorInterface.println(currentMenuLine + currentSelectionLine);
       menuList[currentMenu].selectionHandler(currentMenuLine + currentSelectionLine);
     } else if (button == backButton) {
       newMenu(-1);
@@ -458,6 +457,10 @@ void writeArrows() {
 
   upArrow(90, 15 + 2);
   downArrow(90, 45 + 4);
+}
+
+void backArrow(){
+  leftArrow(0, 15 + 2);
 }
 
 
