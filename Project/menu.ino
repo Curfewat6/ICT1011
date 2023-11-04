@@ -1,8 +1,5 @@
 #define menu_debug_print true // Debug messages will print to the Serial Monitor when this is 'true'
 
-// Change the menu font colors for fun! Pre-set color options are TS_16b_:
-// Black, Gray, DarkGray, White, Blue, DarkBlue, Red, DarkRed, Green, DarkGreen, Brown, DarkBrown, Yellow
-// You can make more colors in the TinyScreen library TinyScreen.h file, there are over 65000+ color combos!
 uint16_t defaultFontColor = TS_16b_White;
 uint16_t defaultFontBG = TS_16b_Black;
 uint16_t inactiveFontColor = TS_16b_Gray;
@@ -30,11 +27,11 @@ typedef struct
 } menu_info;
 
 // First example menu variables for 5 options
-static const char PROGMEM exampleMenuStrings0[] = "Time & Date";
+static const char PROGMEM exampleMenuStrings0[] = "NOT USED";
 static const char PROGMEM exampleMenuStrings1[] = "Brightness";
-static const char PROGMEM exampleMenuStrings2[] = "Menu 2";
-static const char PROGMEM exampleMenuStrings3[] = "happy time";
-static const char PROGMEM exampleMenuStrings4[] = "Option 5";
+static const char PROGMEM exampleMenuStrings2[] = "NOT USED";
+static const char PROGMEM exampleMenuStrings3[] = "NOT USED";
+static const char PROGMEM exampleMenuStrings4[] = "NOT USED";
 
 static const char* const PROGMEM exampleMenuStrings[] =
 {
@@ -52,52 +49,6 @@ const menu_info exampleMenuInfo =
   exampleMenu, 
 };
 
-// Date and Time menu variables
-static const char PROGMEM dateTimeMenuStrings0[] = "Set Year";
-static const char PROGMEM dateTimeMenuStrings1[] = "Set Month";
-static const char PROGMEM dateTimeMenuStrings2[] = "Set Day";
-static const char PROGMEM dateTimeMenuStrings3[] = "Set Hour";
-static const char PROGMEM dateTimeMenuStrings4[] = "Set Minute";
-static const char PROGMEM dateTimeMenuStrings5[] = "Set Second";
-
-static const char* const PROGMEM dateTimeMenuStrings[] =
-{
-  dateTimeMenuStrings0,
-  dateTimeMenuStrings1,
-  dateTimeMenuStrings2,
-  dateTimeMenuStrings3,
-  dateTimeMenuStrings4,
-  dateTimeMenuStrings5,
-};
-
-const menu_info dateTimeMenuInfo =
-{
-  6,
-  dateTimeMenuStrings,
-  dateTimeMenu,
-};
-
-
-// Second example sub-menu variables for 3 options
-// Use Ctrl + f on these menu options to see where to program the logic for these menu titles, noted in comments
-static const char PROGMEM petMenuStrings0[] = "Eat";
-static const char PROGMEM petMenuStrings1[] = "Play";
-static const char PROGMEM petMenuStrings2[] = "Shit";
-
-static const char* const PROGMEM petMenuStrings[] =
-{
-  petMenuStrings0,
-  petMenuStrings1,
-  petMenuStrings2,
-};
-
-const menu_info petMenuInfo =
-{
-  3,
-  petMenuStrings,//loggingMenuStrings
-  petMenu,//loggingMenu
-};
-
 static const char PROGMEM studyMenuStrings0[] = "Timer";
 static const char PROGMEM studyMenuStrings1[] = "Pet";
 
@@ -110,15 +61,13 @@ static const char* const PROGMEM studyMenuStrings[] =
 const menu_info studyMenuInfo =
 {
   2,
-  studyMenuStrings,//loggingMenuStrings
-  studyMenu,//loggingMenu
+  studyMenuStrings,
+  studyMenu,
 };
 
-const menu_info menuList[] = {exampleMenuInfo, dateTimeMenuInfo, petMenuInfo, studyMenuInfo};
+const menu_info menuList[] = {exampleMenuInfo, studyMenuInfo};
 #define exampleMenuIndex 0
-#define dateTimeMenuIndex 1
-#define petMenuIndex 2
-#define studyMenuIndex 3
+#define studyMenuIndex 1
 
 
 bool needMenuDraw = true;
@@ -163,8 +112,6 @@ void newMenu(int8_t newIndex) {
   }
   if (menuHistoryIndex) {
     currentDisplayState = displayStateMenu;
-    //if (menu_debug_print)SerialMonitorInterface.print("New menu index ");
-    //if (menu_debug_print)SerialMonitorInterface.println(currentMenu);
     currentSelectionLine = menuSelectionLineHistory[menuHistoryIndex];
   } else {
     if (menu_debug_print)SerialMonitorInterface.print("New menu index ");
@@ -174,7 +121,6 @@ void newMenu(int8_t newIndex) {
     initHomeScreen();
   }
 }
-
 
 int currentVal = 0;
 int digits[4];
@@ -282,9 +228,8 @@ void saveTempCalibration() {
 }
 
 void exampleMenu(uint8_t selection) {
-  if (menu_debug_print)SerialMonitorInterface.println("exampleMenuHandler");
   if (selection == 0) {
-    newMenu(dateTimeMenuIndex);
+    //newMenu(dateTimeMenuIndex);
   }
   if (selection == 1) {
     char buffer[20];
@@ -293,6 +238,8 @@ void exampleMenu(uint8_t selection) {
   }
   if (selection == 2) {
     // other stuff
+    clearScreen();
+    startPong();
   }
   if (selection == 3) {
   }
@@ -304,16 +251,20 @@ void setBrightnessCB(){
   brightness = constrain(brightness, 0, 15);
 }
 
+// PET SUBMENU MIGHT DELETE BUT KEEPING IT FOR NOW INCASE WE NEED IT FOR 
 void petMenu(uint8_t selection) {
+  SerialMonitorInterface.print("\nalways in\n\n");
+  SerialMonitorInterface.print(selection);
   if (menu_debug_print)SerialMonitorInterface.println("petHandler");
   if (selection == 0) {
-    // Refers to the menu option "Submenu 1" -> program logic here for that menu selection
+    // This option is eat under pet submenu
   }
   if (selection == 1) {
-    // Refers to the menu option "Submenu 2"
+    // This option is Play under pet submenu
+    
   }
   if (selection == 2) {
-    // Refers to the menu option "Submenu 3"
+    // This option is shit under pet submenu
   }
 }
 void studyMenu(uint8_t selection) {
@@ -322,41 +273,13 @@ void studyMenu(uint8_t selection) {
     nameTag(0);
   }
   if (selection == 1) {
-    newMenu(petMenuIndex);
+    display.clearWindow(0,0,96,64);
+    drawBitmap();
+    display.setBitDepth(1);
+    display.setFlip(true);
   }
 
 }
-
-uint8_t dateTimeSelection = 0;
-int dateTimeVariable = 0;
-
-void saveChangeCallback() {
-  int timeData[] = {year(), month(), day(), hour(), minute(), second()};
-  timeData[dateTimeSelection] = dateTimeVariable;
-  setTime(timeData[3], timeData[4], timeData[5], timeData[2], timeData[1], timeData[0]);
-  noInterrupts();
-  counter = now();
-  interrupts();
-  if (menu_debug_print)SerialMonitorInterface.print("set time ");
-  if (menu_debug_print)SerialMonitorInterface.println(dateTimeVariable);
-}
-
-void dateTimeMenu(uint8_t selection) {
-  if (menu_debug_print)SerialMonitorInterface.print("dateTimeMenu ");
-  if (menu_debug_print)SerialMonitorInterface.println(selection);
-  if (selection >= 0 && selection < 6) {
-    int timeData[] = {year(), month(), day(), hour(), minute(), second()};
-    dateTimeVariable = timeData[selection];
-    dateTimeSelection = selection;
-    char buffer[20];
-    strcpy_P(buffer, (PGM_P)pgm_read_word(&(menuList[dateTimeMenuIndex].strings[selection])));
-    editInt(0, &dateTimeVariable, buffer, saveChangeCallback);
-  }
-}
-
-
-
-
 int changeDir;
 int changeEnd;
 int changeStart;
